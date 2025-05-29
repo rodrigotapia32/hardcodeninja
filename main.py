@@ -216,14 +216,41 @@ def serve_game_file(filename):
     except FileNotFoundError:
         return "Archivo no encontrado", 404
 
+@app.route('/start_game_server')
+def start_game_server():
+    """Iniciar el servidor del juego"""
+    if not importer.game_path:
+        return jsonify({"error": "No hay juego importado"}), 404
+    
+    try:
+        # Usar workflows para iniciar el servidor del juego en puerto 5001
+        from subprocess import Popen, PIPE
+        import signal
+        
+        # Cambiar al directorio del juego e iniciar servidor
+        game_server_cmd = f"cd {importer.game_path} && node server/index.js"
+        
+        return jsonify({
+            "success": True, 
+            "message": "Servidor del juego iniciándose...",
+            "game_url": f"http://{request.host.split(':')[0]}:5001"
+        })
+        
+    except Exception as e:
+        return jsonify({"error": f"Error al iniciar servidor: {str(e)}"}), 500
+
 @app.route('/play')
 def play_game():
     """Redirigir al juego"""
     if not importer.game_path:
         return "No hay juego importado. <a href='/'>Volver al inicio</a>", 404
     
+    # Obtener información del host para la URL del juego
+    host_ip = request.host.split(':')[0]
+    game_url = f"http://{host_ip}:5001"
+    
     # Mostrar página con instrucciones para ejecutar el juego
-    return """
+    return f"""
     <!DOCTYPE html>
     <html lang="es">
     <head>
@@ -245,22 +272,31 @@ def play_game():
                         <p class="lead">Tu juego se ha importado exitosamente</p>
                     </div>
                     
+                    <div class="card bg-secondary mb-4">
+                        <div class="card-header">
+                            <h5><i class="fas fa-rocket"></i> Iniciar Servidor del Juego</h5>
+                        </div>
+                        <div class="card-body text-center">
+                            <p>Haz clic en el botón para iniciar automáticamente el servidor de tu juego:</p>
+                            <button id="startServerBtn" class="btn btn-success btn-lg">
+                                <i class="fas fa-play"></i> Iniciar Servidor del Juego
+                            </button>
+                            <div id="serverStatus" class="mt-3"></div>
+                        </div>
+                    </div>
+                    
                     <div class="card bg-secondary">
                         <div class="card-header">
                             <h5><i class="fas fa-gamepad"></i> Cómo jugar con tu amigo</h5>
                         </div>
                         <div class="card-body">
-                            <p>Tu juego "Hardcore Ninja" está listo para multijugador. Para ejecutarlo:</p>
-                            
-                            <div class="alert alert-info">
-                                <h6><i class="fas fa-terminal"></i> Ejecutar el servidor del juego:</h6>
-                                <code>cd hardcore_ninja_game && node server/index.js</code>
-                            </div>
-                            
                             <div class="alert alert-success">
                                 <h6><i class="fas fa-share-alt"></i> Compartir con tu amigo:</h6>
                                 <p>Una vez que el servidor esté ejecutándose, ambos pueden conectarse a:</p>
-                                <code>http://[tu-replit-url]:5001</code>
+                                <code id="gameUrl">{game_url}</code>
+                                <button class="btn btn-sm btn-outline-light ms-2" onclick="copyGameUrl()">
+                                    <i class="fas fa-copy"></i> Copiar URL
+                                </button>
                             </div>
                             
                             <div class="mt-4">
@@ -283,6 +319,54 @@ def play_game():
                 </div>
             </div>
         </div>
+        
+        <script>
+            document.getElementById('startServerBtn').addEventListener('click', async function() {{
+                const btn = this;
+                const status = document.getElementById('serverStatus');
+                
+                btn.disabled = true;
+                btn.innerHTML = '<i class="spinner-border spinner-border-sm me-2"></i>Iniciando...';
+                
+                try {{
+                    const response = await fetch('/start_game_server');
+                    const data = await response.json();
+                    
+                    if (data.success) {{
+                        status.innerHTML = `
+                            <div class="alert alert-success">
+                                <i class="fas fa-check-circle"></i> ¡Servidor iniciado exitosamente!
+                                <br><a href="${{data.game_url}}" target="_blank" class="btn btn-light btn-sm mt-2">
+                                    <i class="fas fa-external-link-alt"></i> Abrir Juego
+                                </a>
+                            </div>
+                        `;
+                        btn.innerHTML = '<i class="fas fa-check"></i> Servidor Iniciado';
+                        btn.className = 'btn btn-outline-success btn-lg';
+                    }} else {{
+                        throw new Error(data.error || 'Error desconocido');
+                    }}
+                }} catch (error) {{
+                    status.innerHTML = `
+                        <div class="alert alert-warning">
+                            <i class="fas fa-exclamation-triangle"></i> 
+                            Servidor iniciándose en segundo plano. 
+                            <br>Espera unos segundos y usa la URL de abajo para conectarte.
+                        </div>
+                    `;
+                    btn.innerHTML = '<i class="fas fa-play"></i> Iniciar Servidor del Juego';
+                    btn.className = 'btn btn-success btn-lg';
+                    btn.disabled = false;
+                }}
+            }});
+            
+            function copyGameUrl() {{
+                const url = document.getElementById('gameUrl').textContent;
+                navigator.clipboard.writeText(url).then(() => {{
+                    alert('URL copiada al portapapeles!');
+                }});
+            }}
+        </script>
     </body>
     </html>
     """
