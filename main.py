@@ -210,29 +210,70 @@ def play_game():
     if not importer.game_path:
         return "No hay juego importado. <a href='/'>Volver al inicio</a>", 404
     
-    game_info = importer.detect_game_type()
-    
-    if game_info and game_info.get("main_file"):
-        if game_info["type"] == "web":
-            # Si es un juego Node.js con servidor, redirigir al puerto del juego
-            if os.path.exists(os.path.join(importer.game_path, "server")):
-                return f'<script>window.location.href="http://{request.host.split(":")[0]}:5001";</script>'
-            else:
-                return f'<script>window.location.href="/game/{game_info["main_file"]}";</script>'
-        else:
-            return f"""
-            <h2>Juego Hardcore Ninja Importado</h2>
-            <p>Tipo: {game_info["type"]}</p>
-            <p>Archivo principal: {game_info["main_file"]}</p>
-            <p>Para juegos no-web, ejecutar manualmente el archivo principal.</p>
-            <a href="/">Volver al inicio</a>
-            """
-    else:
-        return """
-        <h2>Juego importado pero no se detectó archivo principal</h2>
-        <p>Revisa la estructura del juego manualmente.</p>
-        <a href="/">Volver al inicio</a>
-        """
+    # Mostrar página con instrucciones para ejecutar el juego
+    return """
+    <!DOCTYPE html>
+    <html lang="es">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Hardcore Ninja - Listo para Jugar</title>
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+        <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    </head>
+    <body class="bg-dark text-light">
+        <div class="container mt-5">
+            <div class="row justify-content-center">
+                <div class="col-md-8">
+                    <div class="text-center mb-4">
+                        <h1 class="display-4">
+                            <i class="fas fa-user-ninja text-success"></i>
+                            ¡Hardcore Ninja Listo!
+                        </h1>
+                        <p class="lead">Tu juego se ha importado exitosamente</p>
+                    </div>
+                    
+                    <div class="card bg-secondary">
+                        <div class="card-header">
+                            <h5><i class="fas fa-gamepad"></i> Cómo jugar con tu amigo</h5>
+                        </div>
+                        <div class="card-body">
+                            <p>Tu juego "Hardcore Ninja" está listo para multijugador. Para ejecutarlo:</p>
+                            
+                            <div class="alert alert-info">
+                                <h6><i class="fas fa-terminal"></i> Ejecutar el servidor del juego:</h6>
+                                <code>cd hardcore_ninja_game && node server/index.js</code>
+                            </div>
+                            
+                            <div class="alert alert-success">
+                                <h6><i class="fas fa-share-alt"></i> Compartir con tu amigo:</h6>
+                                <p>Una vez que el servidor esté ejecutándose, ambos pueden conectarse a:</p>
+                                <code>http://[tu-replit-url]:5001</code>
+                            </div>
+                            
+                            <div class="mt-4">
+                                <h6><i class="fas fa-info-circle"></i> Características del juego:</h6>
+                                <ul>
+                                    <li>Juego multijugador en tiempo real</li>
+                                    <li>Conexión por Socket.IO</li>
+                                    <li>Motor de juego Phaser</li>
+                                    <li>Sistema de puntuación competitivo</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="text-center mt-4">
+                        <a href="/" class="btn btn-primary">
+                            <i class="fas fa-home"></i> Volver al Importador
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </body>
+    </html>
+    """
 
 if __name__ == '__main__':
     print("=== Hardcore Ninja Game Importer ===")
