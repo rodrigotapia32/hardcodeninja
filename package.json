@@ -1,0 +1,35 @@
+{
+  "name": "hardcore-ninja",
+  "version": "1.0.0",
+  "description": "Juego multijugador inspirado en Hardcore Ninja de Dota 2",
+  "main": "server/index.js",
+  "scripts": {
+    "start": "node server/index.js",
+    "dev": "nodemon server/index.js",
+    "build": "webpack --mode development --watch",
+    "copy-assets": "node scripts/copy-assets.js",
+    "setup": "npm run copy-assets && npm run build"
+  },
+  "keywords": [
+    "game",
+    "phaser",
+    "multiplayer"
+  ],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.18.2",
+    "mrpas": "^2.0.0",
+    "phaser": "^3.70.0",
+    "socket.io": "^4.7.2",
+    "socket.io-client": "^4.8.1"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.23.9",
+    "@babel/preset-env": "^7.23.9",
+    "babel-loader": "^9.1.3",
+    "nodemon": "^3.1.10",
+    "webpack": "^5.90.1",
+    "webpack-cli": "^5.1.4"
+  }
+}
