@@ -1,0 +1,22 @@
+{
+  "name": "workspace",
+  "version": "1.0.0",
+  "description": "Un sistema completo para importar, configurar y ejecutar el juego \"Hardcore Ninja\" desde repositorios de GitHub en Replit.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@babel/core": "^7.27.3",
+    "@babel/preset-env": "^7.27.2",
+    "babel-loader": "^10.0.0",
+    "express": "^5.1.0",
+    "phaser": "^3.90.0",
+    "socket.io": "^4.8.1",
+    "webpack": "^5.99.9",
+    "webpack-cli": "^6.0.1"
+  }
+}

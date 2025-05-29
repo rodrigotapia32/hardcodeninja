@@ -214,7 +214,11 @@ def play_game():
     
     if game_info and game_info.get("main_file"):
         if game_info["type"] == "web":
-            return f'<script>window.location.href="/game/{game_info["main_file"]}";</script>'
+            # Si es un juego Node.js con servidor, redirigir al puerto del juego
+            if os.path.exists(os.path.join(importer.game_path, "server")):
+                return f'<script>window.location.href="http://{request.host.split(":")[0]}:5001";</script>'
+            else:
+                return f'<script>window.location.href="/game/{game_info["main_file"]}";</script>'
         else:
             return f"""
             <h2>Juego Hardcore Ninja Importado</h2>
