@@ -1,19 +1,21 @@
+import Phaser from "phaser";
+
 const config = {
     type: Phaser.AUTO,
     width: 800,
     height: 600,
     physics: {
-        default: 'arcade',
+        default: "arcade",
         arcade: {
             gravity: { y: 0 },
-            debug: false
-        }
+            debug: false,
+        },
     },
     scene: {
         preload: preload,
         create: create,
-        update: update
-    }
+        update: update,
+    },
 };
 
 function preload() {
@@ -28,4 +30,4 @@ function update() {
     // Aquí actualizaremos el estado del juego
 }
 
-export default config; 
+export default config;

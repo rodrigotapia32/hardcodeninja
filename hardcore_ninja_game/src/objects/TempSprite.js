@@ -1,4 +1,5 @@
 import { TEMP_ASSETS } from '../config/tempAssets.js';
+import Phaser from "phaser";
 
 export class TempSprite extends Phaser.GameObjects.Graphics {
     constructor(scene, x, y, type, options = {}) {

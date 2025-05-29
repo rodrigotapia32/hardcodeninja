@@ -1,3 +1,5 @@
+import Phaser from "phaser";
+
 export class AbilityHUD extends Phaser.Plugins.ScenePlugin {
     constructor(scene, pluginManager) {
         super(scene, pluginManager);
@@ -5,21 +7,22 @@ export class AbilityHUD extends Phaser.Plugins.ScenePlugin {
     }
 
     boot() {
-        this.scene.events.on('create', this.createHUD, this);
-        this.scene.events.on('update', this.updateHUD, this);
+        this.scene.events.on("create", this.createHUD, this);
+        this.scene.events.on("update", this.updateHUD, this);
     }
 
     createHUD() {
         const scene = this.scene;
         const abilities = [
-            { key: 'Q', name: 'Deflect', color: 0x00ffff, icon: 'shield' },
-            { key: 'W', name: 'Blink', color: 0xff6600, icon: 'arrow' },
-            { key: 'E', name: 'Shockwave', color: 0xffff00, icon: 'bolt' },
-            { key: 'R', name: 'Dagger', color: 0xff0000, icon: 'dagger' }
+            { key: "Q", name: "Deflect", color: 0x00ffff, icon: "shield" },
+            { key: "W", name: "Blink", color: 0xff6600, icon: "arrow" },
+            { key: "E", name: "Shockwave", color: 0xffff00, icon: "bolt" },
+            { key: "R", name: "Dagger", color: 0xff0000, icon: "dagger" },
         ];
         const boxSize = 64;
         const margin = 12;
-        const startX = scene.cameras.main.width / 2 - (boxSize * 2 + margin * 1.5);
+        const startX =
+            scene.cameras.main.width / 2 - (boxSize * 2 + margin * 1.5);
         const y = scene.cameras.main.height - boxSize - 16;
         this.abilityBoxes = [];
         for (let i = 0; i < abilities.length; i++) {
@@ -32,9 +35,19 @@ export class AbilityHUD extends Phaser.Plugins.ScenePlugin {
             g.lineStyle(2, 0xffffff);
             g.strokeRoundedRect(x, y, boxSize, boxSize, 8);
             // Icono
-            this.drawIcon(g, ab.icon, x + boxSize / 2, y + boxSize / 2, ab.color);
+            this.drawIcon(
+                g,
+                ab.icon,
+                x + boxSize / 2,
+                y + boxSize / 2,
+                ab.color,
+            );
             // Tecla
-            const keyText = scene.add.text(x + 6, y + 2, ab.key, { fontSize: '16px', color: '#fff', fontStyle: 'bold' });
+            const keyText = scene.add.text(x + 6, y + 2, ab.key, {
+                fontSize: "16px",
+                color: "#fff",
+                fontStyle: "bold",
+            });
             keyText.setDepth(1001);
             this.abilityBoxes.push({ x, y, boxSize, ab, g, keyText });
         }
@@ -50,25 +63,28 @@ export class AbilityHUD extends Phaser.Plugins.ScenePlugin {
         g.lineStyle(0);
         g.fillStyle(color, 1);
         switch (type) {
-            case 'shield': // Deflect
+            case "shield": // Deflect
                 g.fillRoundedRect(cx - 14, cy - 10, 28, 20, 10);
                 g.fillRect(cx - 8, cy, 16, 10);
                 break;
-            case 'arrow': // Blink
+            case "arrow": // Blink
                 g.fillRect(cx - 12, cy - 4, 24, 8);
                 g.fillTriangle(cx + 12, cy, cx + 22, cy - 10, cx + 22, cy + 10);
                 break;
-            case 'bolt': // Shockwave
-                g.fillPoints([
-                    { x: cx - 10, y: cy - 12 },
-                    { x: cx + 2,  y: cy - 2 },
-                    { x: cx - 4,  y: cy + 2 },
-                    { x: cx + 10, y: cy + 12 },
-                    { x: cx - 2,  y: cy + 2 },
-                    { x: cx + 4,  y: cy - 2 }
-                ], true);
+            case "bolt": // Shockwave
+                g.fillPoints(
+                    [
+                        { x: cx - 10, y: cy - 12 },
+                        { x: cx + 2, y: cy - 2 },
+                        { x: cx - 4, y: cy + 2 },
+                        { x: cx + 10, y: cy + 12 },
+                        { x: cx - 2, y: cy + 2 },
+                        { x: cx + 4, y: cy - 2 },
+                    ],
+                    true,
+                );
                 break;
-            case 'dagger': // Dagger
+            case "dagger": // Dagger
                 g.fillRect(cx - 2, cy - 16, 4, 24);
                 g.fillTriangle(cx - 8, cy - 16, cx + 8, cy - 16, cx, cy - 28);
                 g.fillRect(cx - 8, cy + 8, 16, 4);
@@ -86,16 +102,21 @@ export class AbilityHUD extends Phaser.Plugins.ScenePlugin {
             player.deflectCooldown ? player.deflectCooldownTime : 0,
             player.blinkCooldown ? player.blinkCooldownTime : 0,
             player.shockwaveCooldown ? player.shockwaveCooldownTime : 0,
-            player.daggerCooldown ? player.daggerCooldownTime : 0
+            player.daggerCooldown ? player.daggerCooldownTime : 0,
         ];
         const maxCooldowns = [2000, 4000, 2000, 5000];
         const cooldownStartTimes = [
             player.deflectCooldownStart || 0,
             player.blinkCooldownStart || 0,
             player.shockwaveCooldownStart || 0,
-            player.daggerCooldownStart || 0
+            player.daggerCooldownStart || 0,
         ];
-        const actives = [player.deflectActive, scene.blinkMode, scene.shockwaveMode, scene.daggerMode];
+        const actives = [
+            player.deflectActive,
+            scene.blinkMode,
+            scene.shockwaveMode,
+            scene.daggerMode,
+        ];
         const now = scene.time.now;
         for (let i = 0; i < this.abilityBoxes.length; i++) {
             const box = this.abilityBoxes[i];
@@ -120,30 +141,34 @@ export class AbilityHUD extends Phaser.Plugins.ScenePlugin {
             }
             box.g.strokeRoundedRect(box.x, box.y, box.boxSize, box.boxSize, 8);
             // Icono
-            this.drawIcon(box.g, box.ab.icon, box.x + box.boxSize / 2, box.y + box.boxSize / 2, box.ab.color);
+            this.drawIcon(
+                box.g,
+                box.ab.icon,
+                box.x + box.boxSize / 2,
+                box.y + box.boxSize / 2,
+                box.ab.color,
+            );
             // Tecla
             if (!box.keyText) {
-                box.keyText = scene.add.text(box.x + 6, box.y + 2, box.ab.key, { fontSize: '16px', color: '#fff', fontStyle: 'bold' });
+                box.keyText = scene.add.text(box.x + 6, box.y + 2, box.ab.key, {
+                    fontSize: "16px",
+                    color: "#fff",
+                    fontStyle: "bold",
+                });
             }
             // Cooldown bar: de arriba hacia abajo, cubriendo todo el botón y avanzando en tiempo real
             this.cooldownBars[i].clear();
             if (cooldown > 0 && cooldownStartTimes[i]) {
                 const elapsed = now - cooldownStartTimes[i];
-                const pct = Phaser.Math.Clamp(1 - (elapsed / maxCooldown), 0, 1);
+                const pct = Phaser.Math.Clamp(1 - elapsed / maxCooldown, 0, 1);
                 const margin = 5;
                 const barX = box.x + margin;
                 const barY = box.y + margin;
                 const barW = box.boxSize - margin * 2;
                 const barH = (box.boxSize - margin * 2) * pct;
                 this.cooldownBars[i].fillStyle(0x00bfff, 0.7);
-                this.cooldownBars[i].fillRoundedRect(
-                    barX,
-                    barY,
-                    barW,
-                    barH,
-                    8
-                );
+                this.cooldownBars[i].fillRoundedRect(barX, barY, barW, barH, 8);
             }
         }
     }
-} 
+}

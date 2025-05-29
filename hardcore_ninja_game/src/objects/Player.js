@@ -1,5 +1,5 @@
-import { TEMP_ASSETS } from '../config/tempAssets.js';
-
+import { TEMP_ASSETS } from "../config/tempAssets.js";
+import Phaser from "phaser";
 export class Player {
     constructor(scene, x, y, options = {}) {
         this.scene = scene;
@@ -12,12 +12,18 @@ export class Player {
         this.graphics = scene.add.graphics();
         this.alive = true;
         this.respawnTime = 1500; // ms
-        this.nick = options.nick || '';
+        this.nick = options.nick || "";
         this.color = options.color || TEMP_ASSETS.COLORS.NINJA;
-        if (typeof this.color === 'string') {
-            this.color = parseInt(this.color.replace('#', '0x'));
+        if (typeof this.color === "string") {
+            this.color = parseInt(this.color.replace("#", "0x"));
         }
-        this.nickText = scene.add.text(this.x, this.y - this.radius - 18, this.nick, { fontSize: '14px', color: '#fff', align: 'center' }).setOrigin(0.5, 0.5);
+        this.nickText = scene.add
+            .text(this.x, this.y - this.radius - 18, this.nick, {
+                fontSize: "14px",
+                color: "#fff",
+                align: "center",
+            })
+            .setOrigin(0.5, 0.5);
         this.nickText.setDepth(10);
         // Deflect (escudo)
         this.deflectActive = false;
@@ -40,8 +46,8 @@ export class Player {
 
     drawNinja() {
         this.graphics.clear();
-        if (typeof this.color === 'string') {
-            this.color = parseInt(this.color.replace('#', '0x'));
+        if (typeof this.color === "string") {
+            this.color = parseInt(this.color.replace("#", "0x"));
         }
         if (this.alive) {
             this.graphics.fillStyle(this.color);
@@ -64,16 +70,33 @@ export class Player {
     }
 
     launchDagger(target, fromX = null, fromY = null) {
-        console.log('[PLAYER] launchDagger', this.nick, 'desde', fromX, fromY, 'hacia', target ? target.nick : null);
+        console.log(
+            "[PLAYER] launchDagger",
+            this.nick,
+            "desde",
+            fromX,
+            fromY,
+            "hacia",
+            target ? target.nick : null,
+        );
         if (!this.canDagger()) {
-            if (this.scene.sound) { console.log('[SOUND] cooldown (dagger)', this.nick); this.scene.sound.play('cooldown'); }
+            if (this.scene.sound) {
+                console.log("[SOUND] cooldown (dagger)", this.nick);
+                this.scene.sound.play("cooldown");
+            }
             return;
         }
         if (!target || !target.alive) {
-            if (this.scene.sound) { console.log('[SOUND] error (dagger)', this.nick); this.scene.sound.play('error'); }
+            if (this.scene.sound) {
+                console.log("[SOUND] error (dagger)", this.nick);
+                this.scene.sound.play("error");
+            }
             return;
         }
-        if (this.scene.sound) { console.log('[SOUND] dagger', this.nick); this.scene.sound.play('dagger'); }
+        if (this.scene.sound) {
+            console.log("[SOUND] dagger", this.nick);
+            this.scene.sound.play("dagger");
+        }
         // Calcular ángulo inicial
         const startX = fromX !== null ? fromX : this.x;
         const startY = fromY !== null ? fromY : this.y;
@@ -81,7 +104,13 @@ export class Player {
         const dy = target.y - startY;
         const angle = Math.atan2(dy, dx);
         // Crear proyectil orientado
-        const dagger = this.scene.add.rectangle(startX, startY, 28, 6, TEMP_ASSETS.COLORS.DAGGER);
+        const dagger = this.scene.add.rectangle(
+            startX,
+            startY,
+            28,
+            6,
+            TEMP_ASSETS.COLORS.DAGGER,
+        );
         dagger.setRotation(angle);
         this.scene.physics.add.existing(dagger);
         dagger.body.setAllowGravity(false);
@@ -98,32 +127,71 @@ export class Player {
         });
         // Homing update
         dagger.update = () => {
-            console.log('[DAGGER][UPDATE] dagger.x:', dagger.x, 'dagger.y:', dagger.y, 'target:', dagger.target ? dagger.target.nick : null, 'target.alive:', dagger.target ? dagger.target.alive : null);
+            console.log(
+                "[DAGGER][UPDATE] dagger.x:",
+                dagger.x,
+                "dagger.y:",
+                dagger.y,
+                "target:",
+                dagger.target ? dagger.target.nick : null,
+                "target.alive:",
+                dagger.target ? dagger.target.alive : null,
+            );
             // Si el objetivo ya está muerto, destruye la daga y no hace nada más
             if (!dagger.target || !dagger.target.alive) {
                 dagger.destroy();
                 return;
             }
-            console.log('[DAGGER] update', this.nick, 'dagger.x:', dagger.x, 'dagger.y:', dagger.y, 'target.x:', dagger.target.x, 'target.y:', dagger.target.y);
+            console.log(
+                "[DAGGER] update",
+                this.nick,
+                "dagger.x:",
+                dagger.x,
+                "dagger.y:",
+                dagger.y,
+                "target.x:",
+                dagger.target.x,
+                "target.y:",
+                dagger.target.y,
+            );
             const dx = dagger.target.x - dagger.x;
             const dy = dagger.target.y - dagger.y;
             const dist = Math.sqrt(dx * dx + dy * dy);
             if (dist < dagger.target.radius + 10) {
                 // Impacto: matar objetivo
-                console.log('[DAGGER] Impacto, llamando die() en', dagger.target.nick);
+                console.log(
+                    "[DAGGER] Impacto, llamando die() en",
+                    dagger.target.nick,
+                );
                 dagger.target.die();
                 dagger.destroy();
-                this.activeDaggers = this.activeDaggers.filter(d => d.active);
+                this.activeDaggers = this.activeDaggers.filter((d) => d.active);
                 // Notificar muerte al servidor si es un jugador remoto
-                if (window.sendState && dagger.target.id && this === window.player) {
-                    console.log('[KILL NOTIFY] Enviando muerte de', dagger.target.nick, 'killer:', this.nick);
-                    window.sendState({ id: dagger.target.id, alive: false, killerId: this.id });
+                if (
+                    window.sendState &&
+                    dagger.target.id &&
+                    this === window.player
+                ) {
+                    console.log(
+                        "[KILL NOTIFY] Enviando muerte de",
+                        dagger.target.nick,
+                        "killer:",
+                        this.nick,
+                    );
+                    window.sendState({
+                        id: dagger.target.id,
+                        alive: false,
+                        killerId: this.id,
+                    });
                 }
                 return;
             }
             const angle = Math.atan2(dy, dx);
             dagger.setRotation(angle);
-            dagger.body.setVelocity(Math.cos(angle) * dagger.speed, Math.sin(angle) * dagger.speed);
+            dagger.body.setVelocity(
+                Math.cos(angle) * dagger.speed,
+                Math.sin(angle) * dagger.speed,
+            );
         };
         // Destruir si no impacta tras 2s
         this.scene.time.delayedCall(2000, () => {
@@ -138,10 +206,16 @@ export class Player {
 
     launchShockwave(targetX, targetY, allPlayers = []) {
         if (!this.canShockwave()) {
-            if (this.scene.sound) { console.log('[SOUND] cooldown (shockwave)', this.nick); this.scene.sound.play('cooldown'); }
+            if (this.scene.sound) {
+                console.log("[SOUND] cooldown (shockwave)", this.nick);
+                this.scene.sound.play("cooldown");
+            }
             return;
         }
-        if (this.scene.sound && this === window.player) { console.log('[SOUND] shockwave', this.nick); this.scene.sound.play('shockwave'); }
+        if (this.scene.sound && this === window.player) {
+            console.log("[SOUND] shockwave", this.nick);
+            this.scene.sound.play("shockwave");
+        }
         // Calcular dirección
         const dx = targetX - this.x;
         const dy = targetY - this.y;
@@ -151,7 +225,8 @@ export class Player {
         const sw = this.scene.add.graphics();
         sw.lineStyle(6, 0xffff00, 1);
         sw.beginPath();
-        let x0 = 0, y0 = 0;
+        let x0 = 0,
+            y0 = 0;
         sw.moveTo(x0, y0);
         let lastY = 0;
         for (let i = 1; i <= 12; i++) {
@@ -192,23 +267,43 @@ export class Player {
             for (const p of allPlayers) {
                 if (p === this || !p.alive || sw.alreadyHit.has(p)) continue;
                 // Colisión rayo-círculo (aprox. como línea)
-                const px = p.x, py = p.y, pr = p.radius;
+                const px = p.x,
+                    py = p.y,
+                    pr = p.radius;
                 // Proyección punto a línea
-                const x1 = sw.x, y1 = sw.y;
+                const x1 = sw.x,
+                    y1 = sw.y;
                 const x2 = sw.x + Math.cos(angle) * length;
                 const y2 = sw.y + Math.sin(angle) * length;
-                const t = ((px - x1) * (x2 - x1) + (py - y1) * (y2 - y1)) / (length * length);
+                const t =
+                    ((px - x1) * (x2 - x1) + (py - y1) * (y2 - y1)) /
+                    (length * length);
                 const closestX = x1 + t * (x2 - x1);
                 const closestY = y1 + t * (y2 - y1);
-                const dist = Math.sqrt((px - closestX) ** 2 + (py - closestY) ** 2);
+                const dist = Math.sqrt(
+                    (px - closestX) ** 2 + (py - closestY) ** 2,
+                );
                 if (t >= 0 && t <= 1 && dist < pr + 8) {
                     if (!p.isInvulnerable()) {
                         p.die();
                         sw.alreadyHit.add(p);
                         // Notificar muerte al servidor si es un jugador remoto
-                        if (window.sendState && p.id && this === window.player) {
-                            console.log('[KILL NOTIFY] Enviando muerte de', p.nick, 'killer:', this.nick);
-                            window.sendState({ id: p.id, alive: false, killerId: this.id });
+                        if (
+                            window.sendState &&
+                            p.id &&
+                            this === window.player
+                        ) {
+                            console.log(
+                                "[KILL NOTIFY] Enviando muerte de",
+                                p.nick,
+                                "killer:",
+                                this.nick,
+                            );
+                            window.sendState({
+                                id: p.id,
+                                alive: false,
+                                killerId: this.id,
+                            });
                         }
                     }
                 }
@@ -226,7 +321,10 @@ export class Player {
 
     tryBlink(destX, destY, walls, maxRange) {
         if (!this.canBlink()) {
-            if (this.scene.sound) { console.log('[SOUND] cooldown (blink)', this.nick); this.scene.sound.play('cooldown'); }
+            if (this.scene.sound) {
+                console.log("[SOUND] cooldown (blink)", this.nick);
+                this.scene.sound.play("cooldown");
+            }
             return;
         }
         // Calcular distancia
@@ -240,23 +338,41 @@ export class Player {
         }
         // No permitir blink dentro de paredes
         if (this.collidesWithWalls(destX, destY, walls)) {
-            if (this.scene.sound) { console.log('[SOUND] error (blink)', this.nick); this.scene.sound.play('error'); }
+            if (this.scene.sound) {
+                console.log("[SOUND] error (blink)", this.nick);
+                this.scene.sound.play("error");
+            }
             // Efecto visual de error
-            const msg = this.scene.add.text(destX - 20, destY - 20, 'X', {
-                fontSize: '24px', fill: '#f00'
-            }).setDepth(10).setAlpha(0.8).setScrollFactor(0).setOrigin(0,0);
+            const msg = this.scene.add
+                .text(destX - 20, destY - 20, "X", {
+                    fontSize: "24px",
+                    fill: "#f00",
+                })
+                .setDepth(10)
+                .setAlpha(0.8)
+                .setScrollFactor(0)
+                .setOrigin(0, 0);
             this.scene.time.delayedCall(700, () => msg.destroy());
             return;
         }
-        if (this.scene.sound) { console.log('[SOUND] blink', this.nick); this.scene.sound.play('blink'); }
+        if (this.scene.sound) {
+            console.log("[SOUND] blink", this.nick);
+            this.scene.sound.play("blink");
+        }
         // Efecto visual de blink
-        const blinkFx = this.scene.add.circle(this.x, this.y, this.radius + 8, 0x00ffff, 0.3);
+        const blinkFx = this.scene.add.circle(
+            this.x,
+            this.y,
+            this.radius + 8,
+            0x00ffff,
+            0.3,
+        );
         this.scene.tweens.add({
             targets: blinkFx,
             alpha: 0,
             scale: 2,
             duration: 300,
-            onComplete: () => blinkFx.destroy()
+            onComplete: () => blinkFx.destroy(),
         });
         // Teletransportar
         this.x = destX;
@@ -275,13 +391,19 @@ export class Player {
     // DEFLECT
     activateDeflect() {
         if (!this.alive || this.deflectActive || this.deflectCooldown) {
-            if (this.scene.sound) { console.log('[SOUND] cooldown (deflect)', this.nick); this.scene.sound.play('cooldown'); }
+            if (this.scene.sound) {
+                console.log("[SOUND] cooldown (deflect)", this.nick);
+                this.scene.sound.play("cooldown");
+            }
             return;
         }
         this.deflectActive = true;
         this.deflectCooldown = true;
         this.deflectCooldownStart = this.scene.time.now;
-        if (this.scene.sound) { console.log('[SOUND] deflect', this.nick); this.scene.sound.play('deflect'); }
+        if (this.scene.sound) {
+            console.log("[SOUND] deflect", this.nick);
+            this.scene.sound.play("deflect");
+        }
         this.drawNinja();
         // Desactivar escudo tras duración
         this.scene.time.delayedCall(this.deflectDuration, () => {
@@ -319,7 +441,7 @@ export class Player {
             const closestY = Math.max(wy - half, Math.min(newY, wy + half));
             const dx = newX - closestX;
             const dy = newY - closestY;
-            if ((dx * dx + dy * dy) < (this.radius * this.radius)) {
+            if (dx * dx + dy * dy < this.radius * this.radius) {
                 return true;
             }
         }
@@ -327,9 +449,19 @@ export class Player {
     }
 
     die() {
-        console.log('[PLAYER] die()', this.nick, 'alive:', this.alive, 'invulnerable:', this.isInvulnerable());
+        console.log(
+            "[PLAYER] die()",
+            this.nick,
+            "alive:",
+            this.alive,
+            "invulnerable:",
+            this.isInvulnerable(),
+        );
         if (!this.alive || this.isInvulnerable()) return;
-        if (this.scene.sound) { console.log('[SOUND] death', this.nick); this.scene.sound.play('death'); }
+        if (this.scene.sound) {
+            console.log("[SOUND] death", this.nick);
+            this.scene.sound.play("death");
+        }
         this.alive = false;
         this.graphics.clear();
         // Efecto de explosión en pelotitas más pequeñas
@@ -346,13 +478,19 @@ export class Player {
                 y: this.y + vy,
                 alpha: 0,
                 duration: 700 + Math.random() * 300,
-                onComplete: () => frag.destroy()
+                onComplete: () => frag.destroy(),
             });
         }
         // Mensaje de muerte temporal
-        const msg = this.scene.add.text(this.x - 30, this.y - 40, '¡Muerto!', {
-            fontSize: '18px', fill: '#fff'
-        }).setDepth(10).setAlpha(0.8).setScrollFactor(0).setOrigin(0,0);
+        const msg = this.scene.add
+            .text(this.x - 30, this.y - 40, "¡Muerto!", {
+                fontSize: "18px",
+                fill: "#fff",
+            })
+            .setDepth(10)
+            .setAlpha(0.8)
+            .setScrollFactor(0)
+            .setOrigin(0, 0);
         this.scene.time.delayedCall(1000, () => msg.destroy());
         // Respawn automático
         this.scene.time.delayedCall(this.respawnTime, () => {
@@ -366,15 +504,29 @@ export class Player {
         this.alive = true;
         this.stop();
         this.drawNinja();
-        if (this.scene.sound) { console.log('[SOUND] respawn', this.nick); this.scene.sound.play('respawn'); }
+        if (this.scene.sound) {
+            console.log("[SOUND] respawn", this.nick);
+            this.scene.sound.play("respawn");
+        }
         // Mensaje de respawn temporal
-        const msg = this.scene.add.text(this.x - 30, this.y - 40, '¡Respawn!', {
-            fontSize: '18px', fill: '#fff'
-        }).setDepth(10).setAlpha(0.8).setScrollFactor(0).setOrigin(0,0);
+        const msg = this.scene.add
+            .text(this.x - 30, this.y - 40, "¡Respawn!", {
+                fontSize: "18px",
+                fill: "#fff",
+            })
+            .setDepth(10)
+            .setAlpha(0.8)
+            .setScrollFactor(0)
+            .setOrigin(0, 0);
         this.scene.time.delayedCall(1000, () => msg.destroy());
         // Sincronizar respawn con el servidor para todos los jugadores
         if (window.sendState && this.id) {
-            window.sendState({ id: this.id, alive: true, x: this.x, y: this.y });
+            window.sendState({
+                id: this.id,
+                alive: true,
+                x: this.x,
+                y: this.y,
+            });
         }
     }
 
@@ -382,13 +534,13 @@ export class Player {
         this.drawNinja();
         // Actualizar daggers activos
         if (this.activeDaggers) {
-            this.activeDaggers = this.activeDaggers.filter(d => d.active);
+            this.activeDaggers = this.activeDaggers.filter((d) => d.active);
             for (const dagger of this.activeDaggers) {
                 if (dagger.update) dagger.update();
             }
         }
         // Sincronizar muerte/remoto SIEMPRE
-        if (typeof this.aliveRemote !== 'undefined') {
+        if (typeof this.aliveRemote !== "undefined") {
             if (this.alive !== this.aliveRemote) {
                 this.setAlive(this.aliveRemote);
             }
@@ -411,13 +563,23 @@ export class Player {
                 if (!this.collidesWithWalls(newX, newY, walls)) {
                     this.x = newX;
                     this.y = newY;
-                } else if (!this.collidesWithWalls(this.x + vx, this.y, walls)) {
+                } else if (
+                    !this.collidesWithWalls(this.x + vx, this.y, walls)
+                ) {
                     this.x = this.x + vx;
-                } else if (!this.collidesWithWalls(this.x, this.y + vy, walls)) {
+                } else if (
+                    !this.collidesWithWalls(this.x, this.y + vy, walls)
+                ) {
                     this.y = this.y + vy;
                 } else {
                     const frac = 0.5;
-                    if (!this.collidesWithWalls(this.x + vx * frac, this.y + vy * frac, walls)) {
+                    if (
+                        !this.collidesWithWalls(
+                            this.x + vx * frac,
+                            this.y + vy * frac,
+                            walls,
+                        )
+                    ) {
                         this.x = this.x + vx * frac;
                         this.y = this.y + vy * frac;
                     } else {
@@ -429,15 +591,22 @@ export class Player {
     }
 
     setAlive(alive) {
-        console.log('[PLAYER] setAlive', this.nick, 'actual:', this.alive, 'nuevo:', alive);
+        console.log(
+            "[PLAYER] setAlive",
+            this.nick,
+            "actual:",
+            this.alive,
+            "nuevo:",
+            alive,
+        );
         if (this.alive === alive) return;
         if (!alive && !this.alive) return; // Ya está muerto
         this.alive = alive;
         if (!alive) {
-            console.log('[PLAYER] die() llamado por setAlive en', this.nick);
+            console.log("[PLAYER] die() llamado por setAlive en", this.nick);
             this.die();
         } else {
             this.respawn();
         }
     }
-} 
+}

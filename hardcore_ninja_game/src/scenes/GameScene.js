@@ -1,15 +1,16 @@
-import { TEMP_ASSETS } from '../config/tempAssets.js';
-import { Player } from '../objects/Player.js';
-import { Mrpas } from 'mrpas';
+import { TEMP_ASSETS } from "../config/tempAssets.js";
+import { Player } from "../objects/Player.js";
+import { Mrpas } from "mrpas";
+import Phaser from "phaser";
 
 export class GameScene extends Phaser.Scene {
     constructor() {
-        super({ key: 'GameScene' });
+        super({ key: "GameScene" });
     }
 
     create() {
         // Fondo
-        this.cameras.main.setBackgroundColor('#181818');
+        this.cameras.main.setBackgroundColor("#181818");
 
         // Dimensiones del mapa (más grande)
         this.mapWidth = 800;
@@ -45,7 +46,7 @@ export class GameScene extends Phaser.Scene {
                 pos.y - pos.h / 2,
                 pos.w,
                 pos.h,
-                cornerRadius
+                cornerRadius,
             );
             const wall = { x: pos.x, y: pos.y, width: pos.w, height: pos.h };
             this.walls.push(wall);
@@ -56,17 +57,29 @@ export class GameScene extends Phaser.Scene {
             const gy1 = Math.floor((pos.y + pos.h / 2) / this.tileSize);
             for (let gy = gy0; gy <= gy1; gy++) {
                 for (let gx = gx0; gx <= gx1; gx++) {
-                    if (gy >= 0 && gy < this.gridHeight && gx >= 0 && gx < this.gridWidth) {
+                    if (
+                        gy >= 0 &&
+                        gy < this.gridHeight &&
+                        gx >= 0 &&
+                        gx < this.gridWidth
+                    ) {
                         this.wallMap[gy][gx] = true;
                     }
                 }
             }
         }
         // Inicializar FOV
-        this.fov = new Mrpas(this.gridWidth, this.gridHeight, (x, y) => !this.wallMap[y][x]);
+        this.fov = new Mrpas(
+            this.gridWidth,
+            this.gridHeight,
+            (x, y) => !this.wallMap[y][x],
+        );
 
         // Crear jugador local
-        const options = window.nick && window.color ? { nick: window.nick, color: window.color } : {};
+        const options =
+            window.nick && window.color
+                ? { nick: window.nick, color: window.color }
+                : {};
         this.player = new Player(this, 100, 100, options);
         window.player = this.player;
         this.player.id = window.socket?.id; // Asigna el id real del socket al jugador local
@@ -78,7 +91,10 @@ export class GameScene extends Phaser.Scene {
                 if (id === window.socket?.id) continue;
                 const p = players[id];
                 if (!this.remotePlayers[id]) {
-                    this.remotePlayers[id] = new Player(this, p.x, p.y, { nick: p.name, color: p.color });
+                    this.remotePlayers[id] = new Player(this, p.x, p.y, {
+                        nick: p.name,
+                        color: p.color,
+                    });
                     this.remotePlayers[id].id = id; // Asigna el id de socket
                 } else {
                     this.remotePlayers[id].x = p.x;
@@ -101,66 +117,84 @@ export class GameScene extends Phaser.Scene {
             // Exponer los jugadores remotos globalmente para sincronización de habilidades
             window.remotePlayers = this.remotePlayers;
             // Actualiza la ventana de lista de jugadores
-            if (!document.getElementById('playerList')) {
-                const div = document.createElement('div');
-                div.id = 'playerList';
-                div.style.position = 'fixed';
-                div.style.top = '16px';
-                div.style.right = '16px';
-                div.style.background = 'rgba(0,0,0,0.7)';
-                div.style.color = '#fff';
-                div.style.padding = '10px 18px';
-                div.style.borderRadius = '10px';
+            if (!document.getElementById("playerList")) {
+                const div = document.createElement("div");
+                div.id = "playerList";
+                div.style.position = "fixed";
+                div.style.top = "16px";
+                div.style.right = "16px";
+                div.style.background = "rgba(0,0,0,0.7)";
+                div.style.color = "#fff";
+                div.style.padding = "10px 18px";
+                div.style.borderRadius = "10px";
                 div.style.zIndex = 9999;
-                div.style.fontFamily = 'monospace';
-                div.style.minWidth = '180px';
+                div.style.fontFamily = "monospace";
+                div.style.minWidth = "180px";
                 document.body.appendChild(div);
             }
-            const div = document.getElementById('playerList');
+            const div = document.getElementById("playerList");
             div.style.zIndex = 9999;
-            div.style.position = 'fixed';
-            div.innerHTML = '<b>Jugadores conectados:</b><br>' + Object.values(players).map(p => `
-                <span style="display:inline-block;width:16px;height:16px;border-radius:50%;background:${p.color || '#fff'};margin-right:6px;vertical-align:middle;"></span>
-                <span style="color:${p.color || '#fff'};font-weight:bold;vertical-align:middle;">${p.name || 'Ninja'}</span>
-                <span style="color:#ffd700;font-weight:bold;margin-left:8px;">${typeof p.score !== 'undefined' ? '🏆 ' + p.score : ''}</span>
-            `).join('<br>');
+            div.style.position = "fixed";
+            div.innerHTML =
+                "<b>Jugadores conectados:</b><br>" +
+                Object.values(players)
+                    .map(
+                        (p) => `
+                <span style="display:inline-block;width:16px;height:16px;border-radius:50%;background:${p.color || "#fff"};margin-right:6px;vertical-align:middle;"></span>
+                <span style="color:${p.color || "#fff"};font-weight:bold;vertical-align:middle;">${p.name || "Ninja"}</span>
+                <span style="color:#ffd700;font-weight:bold;margin-left:8px;">${typeof p.score !== "undefined" ? "🏆 " + p.score : ""}</span>
+            `,
+                    )
+                    .join("<br>");
         };
 
         // Deshabilitar menú contextual en el canvas
         this.input.mouse.disableContextMenu();
 
         // Movimiento con clic derecho
-        this.input.on('pointerdown', (pointer) => {
+        this.input.on("pointerdown", (pointer) => {
             if (pointer.rightButtonDown()) {
                 this.player.moveTo(pointer.worldX, pointer.worldY);
             }
         });
 
         // Teclas
-        this.sKey = this.input.keyboard.addKey('S');
-        this.dKey = this.input.keyboard.addKey('D');
-        this.qKey = this.input.keyboard.addKey('Q');
-        this.wKey = this.input.keyboard.addKey('W');
-        this.eKey = this.input.keyboard.addKey('E');
-        this.rKey = this.input.keyboard.addKey('R');
+        this.sKey = this.input.keyboard.addKey("S");
+        this.dKey = this.input.keyboard.addKey("D");
+        this.qKey = this.input.keyboard.addKey("Q");
+        this.wKey = this.input.keyboard.addKey("W");
+        this.eKey = this.input.keyboard.addKey("E");
+        this.rKey = this.input.keyboard.addKey("R");
 
         // Blink
         this.blinkMode = false;
         this.blinkRange = 180; // rango máximo de blink
-        this.input.on('pointerdown', (pointer) => {
+        this.input.on("pointerdown", (pointer) => {
             if (this.blinkMode && pointer.leftButtonDown()) {
-                this.player.tryBlink(pointer.worldX, pointer.worldY, this.walls, this.blinkRange);
+                this.player.tryBlink(
+                    pointer.worldX,
+                    pointer.worldY,
+                    this.walls,
+                    this.blinkRange,
+                );
                 this.blinkMode = false;
             }
         });
 
         // Shockwave
         this.shockwaveMode = false;
-        this.input.on('pointerdown', (pointer) => {
+        this.input.on("pointerdown", (pointer) => {
             if (this.shockwaveMode && pointer.leftButtonDown()) {
                 // Pasa todos los jugadores (local y remotos) para que pueda matar a cualquiera
-                const allPlayers = [this.player, ...Object.values(this.remotePlayers)];
-                this.player.launchShockwave(pointer.worldX, pointer.worldY, allPlayers);
+                const allPlayers = [
+                    this.player,
+                    ...Object.values(this.remotePlayers),
+                ];
+                this.player.launchShockwave(
+                    pointer.worldX,
+                    pointer.worldY,
+                    allPlayers,
+                );
                 this.shockwaveMode = false;
             }
         });
@@ -172,7 +206,7 @@ export class GameScene extends Phaser.Scene {
 
         // Dagger
         this.daggerMode = false;
-        this.input.on('pointerdown', (pointer) => {
+        this.input.on("pointerdown", (pointer) => {
             if (this.daggerMode && pointer.leftButtonDown()) {
                 // Detectar si el click fue sobre un jugador remoto
                 let target = null;
@@ -185,7 +219,12 @@ export class GameScene extends Phaser.Scene {
                         break;
                     }
                 }
-                console.log('[GAME] Click dagger. Target:', target ? target.nick : null, 'id:', target ? target.id : null);
+                console.log(
+                    "[GAME] Click dagger. Target:",
+                    target ? target.nick : null,
+                    "id:",
+                    target ? target.id : null,
+                );
                 if (target) {
                     this.player.launchDagger(target);
                 }
@@ -211,7 +250,9 @@ export class GameScene extends Phaser.Scene {
         const radio = 12;
         const visibles = [];
         this.fov.compute(
-            px, py, radio,
+            px,
+            py,
+            radio,
             (x, y) => true,
             (x, y) => {
                 // Solo agrega si está dentro del círculo
@@ -220,14 +261,19 @@ export class GameScene extends Phaser.Scene {
                 if (dx * dx + dy * dy <= radio * radio) {
                     visibles.push(`${x},${y}`);
                 }
-            }
+            },
         );
         // 2. Dibuja solo las celdas NO visibles (sombra opaca)
         this.fovMask.fillStyle(0x000000, 1);
         for (let y = 0; y < this.gridHeight; y++) {
             for (let x = 0; x < this.gridWidth; x++) {
                 if (!visibles.includes(`${x},${y}`)) {
-                    this.fovMask.fillRect(x * this.tileSize, y * this.tileSize, this.tileSize, this.tileSize);
+                    this.fovMask.fillRect(
+                        x * this.tileSize,
+                        y * this.tileSize,
+                        this.tileSize,
+                        this.tileSize,
+                    );
                 }
             }
         }
@@ -280,7 +326,9 @@ export class GameScene extends Phaser.Scene {
             for (const sw of this.activeShockwaves) {
                 if (sw.update) sw.update();
             }
-            this.activeShockwaves = this.activeShockwaves.filter(sw => sw.active);
+            this.activeShockwaves = this.activeShockwaves.filter(
+                (sw) => sw.active,
+            );
         }
 
         // FOV
@@ -297,12 +345,18 @@ export class GameScene extends Phaser.Scene {
         if (pointer.y <= 40) {
             cam.scrollY = Math.max(cam.scrollY - 8, 0);
         } else if (pointer.y >= cam.height - 40) {
-            cam.scrollY = Math.min(cam.scrollY + 8, this.mapHeight - cam.height);
+            cam.scrollY = Math.min(
+                cam.scrollY + 8,
+                this.mapHeight - cam.height,
+            );
         }
 
         // Sincronización de movimiento multiplayer
         if (window.sendMove && this.player && this.player.alive) {
-            if (this.player.x !== this.lastSentX || this.player.y !== this.lastSentY) {
+            if (
+                this.player.x !== this.lastSentX ||
+                this.player.y !== this.lastSentY
+            ) {
                 window.sendMove(this.player.x, this.player.y);
                 this.lastSentX = this.player.x;
                 this.lastSentY = this.player.y;
@@ -319,7 +373,9 @@ export class GameScene extends Phaser.Scene {
 
         // Actualizar daggers activos de todos los jugadores
         if (this.player && this.player.activeDaggers) {
-            this.player.activeDaggers = this.player.activeDaggers.filter(d => d.active);
+            this.player.activeDaggers = this.player.activeDaggers.filter(
+                (d) => d.active,
+            );
             for (const dagger of this.player.activeDaggers) {
                 if (dagger.update) dagger.update();
             }
@@ -328,7 +384,7 @@ export class GameScene extends Phaser.Scene {
             for (const id in this.remotePlayers) {
                 const p = this.remotePlayers[id];
                 if (p.activeDaggers) {
-                    p.activeDaggers = p.activeDaggers.filter(d => d.active);
+                    p.activeDaggers = p.activeDaggers.filter((d) => d.active);
                     for (const dagger of p.activeDaggers) {
                         if (dagger.update) dagger.update();
                     }
@@ -338,13 +394,13 @@ export class GameScene extends Phaser.Scene {
     }
 
     preload() {
-        this.load.audio('deflect', 'assets/audios/deflect.mp3');
-        this.load.audio('blink', 'assets/audios/blink.mp3');
-        this.load.audio('shockwave', 'assets/audios/shockwave.mp3');
-        this.load.audio('dagger', 'assets/audios/dagger.mp3');
-        this.load.audio('error', 'assets/audios/error.mp3');
-        this.load.audio('death', 'assets/audios/death.mp3');
-        this.load.audio('respawn', 'assets/audios/respawn.mp3');
-        this.load.audio('cooldown', 'assets/audios/cooldown.mp3');
+        this.load.audio("deflect", "assets/audios/deflect.mp3");
+        this.load.audio("blink", "assets/audios/blink.mp3");
+        this.load.audio("shockwave", "assets/audios/shockwave.mp3");
+        this.load.audio("dagger", "assets/audios/dagger.mp3");
+        this.load.audio("error", "assets/audios/error.mp3");
+        this.load.audio("death", "assets/audios/death.mp3");
+        this.load.audio("respawn", "assets/audios/respawn.mp3");
+        this.load.audio("cooldown", "assets/audios/cooldown.mp3");
     }
-} 
+}
