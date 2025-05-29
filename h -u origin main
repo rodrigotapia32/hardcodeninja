@@ -1,0 +1,99 @@
+[33mcommit bf915527f598555197174f342c677a969e0fc3db[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m)[m
+Merge: 2c3f689 824734e
+Author: Rodrigo Tapia <rodrigotapia1988@gmail.com>
+Date:   Thu May 29 02:25:31 2025 -0400
+
+    Subiendo archivos desde Replit
+
+[33mcommit 2c3f6891be2d6323b114da4a3d75b4d8e316a307[m
+Author: rodrigo tapia <43246613-rodrigotapia198@users.noreply.replit.com>
+Date:   Thu May 29 05:30:03 2025 +0000
+
+    se realizan los cambios en el codigo para que funcione el muliplayer
+
+[33mcommit 824734e220f598de7e4e5ee3790cf115245df88d[m[33m ([m[1;31morigin/main[m[33m)[m
+Author: Rodrigo Tapia <77768503+rodrigotapia32@users.noreply.github.com>
+Date:   Wed May 28 22:24:23 2025 -0400
+
+    Update package.json
+
+[33mcommit a14cea526e0021d47617d40149b898321eba48fd[m
+Author: rodrigotapia198 <43246613-rodrigotapia198@users.noreply.replit.com>
+Date:   Thu May 29 01:51:07 2025 +0000
+
+    Add button to launch game server directly from the Replit interface
+    
+    Implements a new "/start_game_server" route and a button in main.py to start the game server and display the game URL, updating .replit to ensure server execution.
+    
+    Replit-Commit-Author: Agent
+    Replit-Commit-Session-Id: 9be2d68e-019f-44bc-a31d-3da26668218e
+    Replit-Commit-Screenshot-Url: https://storage.googleapis.com/screenshot-production-us-central1/19920b1d-2dfa-4206-bdce-54e7cf18e548/3d2b5a82-7ad2-4ae2-9553-ab94619f57f0.jpg
+
+[33mcommit df6cdb47ac93812245dab1d6670fbb2332df362d[m
+Author: rodrigotapia198 <43246613-rodrigotapia198@users.noreply.replit.com>
+Date:   Thu May 29 01:45:50 2025 +0000
+
+    Improve game import process and handle potential setup issues better
+    
+    Handle missing game structure, dependency install failures and add game dir check.
+    
+    Replit-Commit-Author: Agent
+    Replit-Commit-Session-Id: 9be2d68e-019f-44bc-a31d-3da26668218e
+    Replit-Commit-Screenshot-Url: https://storage.googleapis.com/screenshot-production-us-central1/19920b1d-2dfa-4206-bdce-54e7cf18e548/faf93d21-ea02-48c1-90c9-c0b7d6d34eb2.jpg
+
+[33mcommit aa4941a1da58c9369ff11abb0132b63bee858ea9[m
+Author: rodrigotapia198 <43246613-rodrigotapia198@users.noreply.replit.com>
+Date:   Thu May 29 01:43:23 2025 +0000
+
+    Guide users with instructions to start and play the imported game
+    
+    Replaces automatic game execution logic with an instructional HTML page in `play_game()` function.
+    
+    Replit-Commit-Author: Agent
+    Replit-Commit-Session-Id: 9be2d68e-019f-44bc-a31d-3da26668218e
+    Replit-Commit-Screenshot-Url: https://storage.googleapis.com/screenshot-production-us-central1/19920b1d-2dfa-4206-bdce-54e7cf18e548/62414ae7-dbfc-4a4e-a117-8e00506a6dfb.jpg
+
+[33mcommit d338fbd2eb948e9feea6f3dfc4a74a8c8a80bdf8[m
+Author: rodrigotapia198 <43246613-rodrigotapia198@users.noreply.replit.com>
+Date:   Thu May 29 01:39:02 2025 +0000
+
+    Configure Hardcore Ninja game to run as a Node.js application
+    
+    Adds Node.js modules, configures server execution, and sets ports in .replit; updates main.py to redirect to the game's server port 5001.
+    
+    Replit-Commit-Author: Agent
+    Replit-Commit-Session-Id: 9be2d68e-019f-44bc-a31d-3da26668218e
+    Replit-Commit-Screenshot-Url: https://storage.googleapis.com/screenshot-production-us-central1/19920b1d-2dfa-4206-bdce-54e7cf18e548/4f4a27ff-2b6c-4f57-99a4-d07386e4ffe7.jpg
+
+[33mcommit b83c3956ba25b2a476788f87eee64c00b948bf91[m
+Author: rodrigotapia198 <43246613-rodrigotapia198@users.noreply.replit.com>
+Date:   Thu May 29 01:31:42 2025 +0000
+
+    Set up the Hardcore Ninja game for easy import and play
+    
+    Adds core files for importing, configuring, and running the "Hardcore Ninja" game from a GitHub repository in Replit with Flask.
+    
+    Replit-Commit-Author: Agent
+    Replit-Commit-Session-Id: 9be2d68e-019f-44bc-a31d-3da26668218e
+    Replit-Commit-Screenshot-Url: https://storage.googleapis.com/screenshot-production-us-central1/19920b1d-2dfa-4206-bdce-54e7cf18e548/4c140c3d-84fc-4ce1-89d4-f61d909bc527.jpg
+
+[33mcommit fd97b9b4ec53c2058711ea4a4c822b7103b1e847[m
+Author: rodrigotapia198 <43246613-rodrigotapia198@users.noreply.replit.com>
+Date:   Thu May 29 01:26:43 2025 +0000
+
+    Started building your app
+    
+    Replit-Commit-Author: Agent
+    Replit-Commit-Session-Id: 9be2d68e-019f-44bc-a31d-3da26668218e
+
+[33mcommit cd827afd32548e807de6c6c701f32fc088340654[m
+Author: rodrigotapia198 <43246613-rodrigotapia198@users.noreply.replit.com>
+Date:   Thu May 29 01:26:42 2025 +0000
+
+    Initial commit
+
+[33mcommit 9d02a26abf659a79461c4847a1057864f4e68b93[m
+Author: Rodrigo Tapia <rodrigotapia1988@gmail.com>
+Date:   Wed May 28 20:18:56 2025 -0400
+
+    primer commit
