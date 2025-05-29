@@ -10,6 +10,9 @@
     "copy-assets": "node scripts/copy-assets.js",
     "setup": "npm run copy-assets && npm run build"
   },
+  "engines": {
+     "node": "18.x"
+   },
   "keywords": [
     "game",
     "phaser",
