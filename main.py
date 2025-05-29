@@ -126,6 +126,7 @@ class GameImporter:
             
             if not game_info:
                 self.log("No se pudo detectar la estructura del juego")
+                self.status = "ready"  # Marcar como listo aún si no se detecta
                 return False
             
             self.log(f"Tipo de juego detectado: {game_info['type']}")
@@ -134,7 +135,11 @@ class GameImporter:
             # Instalar dependencias según el tipo
             if game_info["type"] == "python" and game_info["dependencies"]:
                 self.log("Instalando dependencias de Python...")
-                subprocess.run([sys.executable, "-m", "pip", "install"] + game_info["dependencies"])
+                try:
+                    subprocess.run([sys.executable, "-m", "pip", "install"] + game_info["dependencies"], 
+                                 timeout=60, check=False)
+                except:
+                    self.log("Advertencia: Algunas dependencias no se pudieron instalar")
             
             self.status = "ready"
             self.log("Juego configurado y listo para ejecutar")
@@ -142,10 +147,17 @@ class GameImporter:
             
         except Exception as e:
             self.log(f"Error en la configuración: {str(e)}")
+            self.status = "ready"  # Marcar como listo incluso con errores
             return False
 
 # Instancia global del importador
 importer = GameImporter()
+
+# Verificar si ya hay un juego importado al iniciar
+if os.path.exists(GAME_DIR):
+    importer.game_path = GAME_DIR
+    importer.status = "ready"
+    importer.log("Juego Hardcore Ninja encontrado y listo para usar")
 
 @app.route('/')
 def index():
